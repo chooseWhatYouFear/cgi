@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>image</title>
+    <script type="text/javascript" src="./js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="./js/Chart.min.js"></script>
+    <link rel="stylesheet" href="./js/bootstrap.min.css">
+    <style type="text/css">
+        #pannel{
+            background: url("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1562242536735&di=f28bcdf222c2d3e7b685dd38fa971255&imgtype=0&src=http%3A%2F%2Fpic37.nipic.com%2F20140113%2F8800276_184927469000_2.png");
+        }
+        div{
+            width: 800px;
+            height:550px;
+            background-color: #9d9d9d;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <canvas id="pannel" width="800" height="500"></canvas>
+        <br>
+        <center><button type="button" class="btn btn-primary" id="btu1" >开始</button>
+        <button type="button" class="btn btn-danger" id="btu2">暂停</button>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    $(function () {
+        var can = $('#pannel').get(0).getContext('2d');
+        var canDate = {
+            labels:["a","b",'c','d','e','f'],
+            datasets:[{
+                fillColor:'rgba(255,255,0,0.1)',
+                strokeColor:'rgb(255,165,0)',
+                data:[1,2,3,4,5]
+            }]
+        };
+        var line = new Chart(can).Line(canDate);
+        function run() {
+            time = setInterval(function () {
+            $.ajax(
+                {
+                    type:'get',
+                    url:'/cgi-bin/jsonData.py',
+                    success:function (data) {
+                        line.addData(
+                            [data['num']],
+                            data['now']
+                        );
+                        var len = line.datasets[0].points.length;
+                        if(len>8){
+                            line.removeData()
+                        }
+                    },
+                    error:function (error) {
+                        console.log(error)
+                    }
+                }
+            )
+        },1000);
+        }
+
+        $('#btu1').click(function () {
+            run()
+        });
+        $('#btu2').click(function () {
+            clearInterval(time)
+        })
+    })
+</script>
